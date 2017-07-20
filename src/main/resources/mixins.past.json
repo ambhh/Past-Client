@@ -1,0 +1,20 @@
+{
+  "required": true,
+  "minVersion": "0.7",
+  "package": "net.gogume1er.past.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "mixins.past.refmap.json",
+  "mixins": [
+    "MixinMinecraft",
+    "MixinGuiOptions",
+    "MixinGuiMainMenu",
+    "MixinKeyBinding",
+    "MixinGuiKeyBindingList$KeyEntry",
+    "MixinEntityPlayerSP",
+    "MixinAbstractClientPlayer",
+    "MixinItemRenderer"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

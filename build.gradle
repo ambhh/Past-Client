@@ -1,0 +1,120 @@
+/*
+ * Copyright (C) 2017  Gogume1er
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+buildscript {
+    repositories {
+        mavenCentral()
+        maven {
+            name = 'forge'
+            url = 'http://files.minecraftforge.net/maven'
+        }
+        maven {
+            name = 'sponge'
+            url = 'http://repo.spongepowered.org/maven'
+        }
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
+        classpath 'org.spongepowered:mixingradle:0.4-SNAPSHOT'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.0'
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'net.minecraftforge.gradle.tweaker-client'
+apply plugin: 'org.spongepowered.mixin'
+apply plugin: 'com.github.johnrengelman.shadow'
+
+group 'net.gogume1er'
+version '1.1.0'
+archivesBaseName = "past"
+
+sourceCompatibility = targetCompatibility = 1.8
+
+compileJava {
+    sourceCompatibility = targetCompatibility = 1.8
+}
+
+minecraft {
+    version = '1.8.9'
+    runDir = 'run'
+    tweakClass = 'net.gogume1er.past.launch.PastTweaker'
+    mappings = 'stable_22'
+    useDepAts = true
+
+    makeObfSourceJar = true
+    // TODO Fix it
+    clientJvmArgs = ["-Dmixin.debug.export=\"true\""]
+    // TODO Other way to log in ?
+    // clientRunArgs = ["--username", "*", "--password", "*"]
+
+    replace '@VERSION@', project.version
+}
+
+repositories {
+    mavenCentral()
+
+    maven {
+        name = 'sponge'
+        url = 'http://repo.spongepowered.org/maven/'
+    }
+}
+
+configurations {
+    deps
+    compile {
+        extendsFrom deps
+    }
+}
+
+
+dependencies {
+    compile('org.spongepowered:mixin:0.7-SNAPSHOT') {
+        exclude module: 'launchwrapper'
+        exclude module: 'guava'
+        exclude module: 'gson'
+        exclude module: 'commons-io'
+    }
+}
+
+mixin {
+    defaultObfuscationEnv notch
+    add sourceSets.main, "mixins.past.refmap.json"
+}
+
+shadowJar {
+    dependencies {
+        include dependency('org.spongepowered:mixin')
+    }
+
+    exclude 'dummyThing'
+    exclude 'LICENSE.txt'
+    classifier = 'full'
+}
+
+reobf {
+    shadowJar {
+        mappingType = 'NOTCH'
+        classpath = sourceSets.main.compileClasspath
+    }
+}
+
+build.dependsOn(shadowJar)
